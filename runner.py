@@ -206,6 +206,37 @@ def _build_command(script: db.Script) -> Optional[list]:
     return None
 
 
+def cleanup_zombie_processes():
+    """Find and kill orphaned child processes (e.g., from crashed scripts) to free RAM."""
+    import psutil, os
+    logger.info("Scanning for orphaned zombie processes...")
+    my_pid = os.getpid()
+    tracked_pids = set()
+    
+    with _lock:
+        for sid, info in _processes.items():
+            if "process" in info:
+                tracked_pids.add(info["process"].pid)
+                
+    try:
+        parent = psutil.Process(my_pid)
+        killed_count = 0
+        for child in parent.children(recursive=True):
+            if child.pid not in tracked_pids:
+                logger.warning(f"Killing orphaned process {child.pid} to free RAM.")
+                try:
+                    child.kill()
+                    killed_count += 1
+                except psutil.NoSuchProcess:
+                    pass
+        if killed_count > 0:
+            logger.info(f"Killed {killed_count} orphaned processes.")
+        else:
+            logger.info("No orphaned processes found.")
+    except Exception as e:
+        logger.error(f"Error cleaning zombie processes: {e}")
+
+
 def _monitor(script_id: int):
     """Watch a process; handle crash recovery."""
     with _lock:

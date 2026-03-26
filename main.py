@@ -12,6 +12,7 @@ import runner
 import keep_alive
 from config import BOT_TOKEN, OWNER_ID
 from handlers import user, files, admin
+from utils.cleaner import run_system_cleanup
 
 # ─── Logging ────────────────────────────────────────────────
 logging.basicConfig(
@@ -67,6 +68,10 @@ def main():
     admin.register(app)
     files.register(app)
     user.register(app)
+
+    # Schedule background cleanup system (Disk and RAM saver for Free Tiers)
+    # Runs every 5 hours (18000 seconds), starts 1 hour (3600 seconds) after boot.
+    app.job_queue.run_repeating(run_system_cleanup, interval=18000, first=3600)
 
     # Graceful shutdown on SIGTERM (Railway sends this)
     def _handle_signal(sig, frame):
