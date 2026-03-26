@@ -1,0 +1,226 @@
+2026-03-26 18:03:45,267 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-03-26 18:03:45,269 - __main__ - INFO - 🚀 البوت يعمل الآن بنظام الحماية والذكاء...
+2026-03-26 18:03:45,904 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getMe "HTTP/1.1 200 OK"
+2026-03-26 18:03:46,060 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/deleteWebhook "HTTP/1.1 200 OK"
+2026-03-26 18:03:46,062 - apscheduler.scheduler - INFO - Added job "check_auto_end" to job store "default"
+2026-03-26 18:03:46,062 - apscheduler.scheduler - INFO - Scheduler started
+2026-03-26 18:03:46,064 - telegram.ext.Application - INFO - Application started
+2026-03-26 18:03:55,272 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:04:55 UTC)" (scheduled at 2026-03-26 18:03:55.266444+00:00)
+2026-03-26 18:03:55,275 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:04:55 UTC)" executed successfully
+2026-03-26 18:03:56,512 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:06,666 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:16,815 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:26,966 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:37,121 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:47,271 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:04:55,269 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:05:55 UTC)" (scheduled at 2026-03-26 18:04:55.266444+00:00)
+2026-03-26 18:04:55,272 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:05:55 UTC)" executed successfully
+2026-03-26 18:04:57,423 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:03,235 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:03,748 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/sendMessage "HTTP/1.1 200 OK"
+2026-03-26 18:05:03,755 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest', style="primary")],
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:05:13,403 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:23,551 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:33,709 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:43,861 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:54,010 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:05:55,267 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:06:55 UTC)" (scheduled at 2026-03-26 18:05:55.266444+00:00)
+2026-03-26 18:05:55,269 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:06:55 UTC)" executed successfully
+2026-03-26 18:06:04,161 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:14,310 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:24,463 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:34,617 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:44,773 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:54,927 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:06:55,273 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:07:55 UTC)" (scheduled at 2026-03-26 18:06:55.266444+00:00)
+2026-03-26 18:06:55,275 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:07:55 UTC)" executed successfully
+2026-03-26 18:07:05,079 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:07:15,234 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:07:25,386 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:07:35,548 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:07:45,704 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:07:55,267 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:08:55 UTC)" (scheduled at 2026-03-26 18:07:55.266444+00:00)
+2026-03-26 18:07:55,269 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:08:55 UTC)" executed successfully
+2026-03-26 18:07:55,855 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:06,009 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:16,164 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:26,313 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:36,465 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:46,617 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:08:55,267 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:09:55 UTC)" (scheduled at 2026-03-26 18:08:55.266444+00:00)
+2026-03-26 18:08:55,270 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:09:55 UTC)" executed successfully
+2026-03-26 18:08:56,769 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:06,922 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:17,077 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:27,230 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:37,386 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:47,537 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:09:55,274 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:10:55 UTC)" (scheduled at 2026-03-26 18:09:55.266444+00:00)
+2026-03-26 18:09:55,276 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:10:55 UTC)" executed successfully
+2026-03-26 18:09:57,687 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:07,841 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:17,994 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:28,150 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:38,304 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:42,372 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:42,889 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/sendMessage "HTTP/1.1 200 OK"
+2026-03-26 18:10:42,895 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:44,685 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:44,690 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:47,556 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:47,561 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:48,813 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:48,818 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:50,844 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:50,849 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:51,725 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:51,730 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:53,446 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:10:53,451 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:10:55,267 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:11:55 UTC)" (scheduled at 2026-03-26 18:10:55.266444+00:00)
+2026-03-26 18:10:55,269 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:11:55 UTC)" executed successfully
+2026-03-26 18:11:03,602 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:13,759 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:23,913 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:34,069 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:44,219 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:54,370 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:11:55,267 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:12:55 UTC)" (scheduled at 2026-03-26 18:11:55.266444+00:00)
+2026-03-26 18:11:55,269 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:12:55 UTC)" executed successfully
+2026-03-26 18:12:04,521 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:13,574 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:13,579 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_application.py", line 1325, in process_update
+    await coroutine
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\conversationhandler.py", line 857, in handle_update
+    new_state: object = await handler.handle_update(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 157, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 250, in start
+    await send_main_menu(update, context)
+  File "C:\Users\TOOLBOXLAP\Downloads\New folder\bot\scripts\8429073574\تجربه بوت مسابقات.py", line 188, in send_main_menu
+    [InlineKeyboardButton("🟢 إنشاء مسابقة جديدة", callback_data='create_contest')],
+TypeError: InlineKeyboardButton.__init__() got an unexpected keyword argument 'style'
+2026-03-26 18:12:23,735 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:33,888 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:44,040 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:54,194 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
+2026-03-26 18:12:55,266 - apscheduler.executors.default - INFO - Running job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:13:55 UTC)" (scheduled at 2026-03-26 18:12:55.266444+00:00)
+2026-03-26 18:12:55,269 - apscheduler.executors.default - INFO - Job "check_auto_end (trigger: interval[0:01:00], next run at: 2026-03-26 18:13:55 UTC)" executed successfully
+2026-03-26 18:13:04,346 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8318453215:AAE2ApVF9lylfEkouEJv3PV_PwBayYMyp1Q/getUpdates "HTTP/1.1 200 OK"
