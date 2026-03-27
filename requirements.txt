@@ -3,4 +3,4 @@ SQLAlchemy==2.0.36
 Flask==3.0.3
 psutil==5.9.8
 python-dotenv==1.0.1
-Pillow==10.1.0
+Pillow==9.5.0
