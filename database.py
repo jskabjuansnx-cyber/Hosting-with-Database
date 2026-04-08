@@ -54,7 +54,8 @@ class User(Base):
     is_banned     = Column(Boolean, default=False)
     ban_reason    = Column(String(256), nullable=True)
     subscription_expiry = Column(DateTime, nullable=True)
-    has_uploaded_free = Column(Boolean, default=False)  # مجاني رفع قبل كده ولا لا
+    has_uploaded_free   = Column(Boolean, default=False)   # رفع ملف مجاني قبل كده
+    free_uploads_used   = Column(Integer, default=0)       # عدد الملفات المرفوعة تاريخياً
     joined_at     = Column(DateTime, default=datetime.utcnow)
 
 
@@ -109,6 +110,15 @@ class LogMeta(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
 
 
+class EmojiConfig(Base):
+    """جدول لتخزين Custom Emoji IDs القابلة للتعديل من لوحة التحكم."""
+    __tablename__ = "emoji_config"
+    key           = Column(String(64), primary_key=True)   # اسم الإيموجي مثل WAVE, CROWN2
+    emoji_id      = Column(String(64), nullable=False)     # الـ custom emoji ID
+    emoji_char    = Column(String(8),  nullable=False)     # الحرف المقابل مثل 👋
+    description   = Column(String(128), nullable=True)     # وصف للأدمن
+
+
 # ─── Session helper ─────────────────────────────────────────
 
 @contextmanager
@@ -142,13 +152,96 @@ DEFAULT_CONFIG = {
     "update_channel":   "https://t.me/Raven_xx24",
 }
 
+# الإيموجيات القابلة للتعديل من لوحة التحكم
+# key: (emoji_char, emoji_id, description)
+DEFAULT_EMOJIS = {
+    # ─── رسالة الترحيب /start ──────────────────────────────
+    "WAVE":         ("👋", "5353027129250422669", "تحية الترحيب في /start"),
+    "MASK":         ("🎭", "5359441070201513074", "إيموجي الدور في /start"),
+    "FOLDER2":      ("📁", "5433653135799228968", "حد الملفات في /start"),
+    "BRAIN":        ("🧠", "5226639745106330551", "وصف البوت في /start"),
+    # ─── أدوار المستخدمين ──────────────────────────────────
+    "CROWN2":       ("👑", "5364042960155472936", "دور الأدمن"),
+    "FREE_USER":    ("👤", "5848155425899287189", "دور المجاني"),
+    "PAID_USER":    ("💎", "6251075258648891976", "دور المشترك"),
+    # ─── سرعة البوت ────────────────────────────────────────
+    "LIGHTNING2":   ("⚡", "5363845026587634369", "سرعة البوت"),
+    "TIMER":        ("⏱", "5382194935057372936", "وقت الاستجابة"),
+    "CLOCK":        ("⏰", "5413704112220949842", "وقت التشغيل"),
+    "MASK2":        ("🎭", "5359441070201513074", "الدور في الإحصائيات"),
+    # ─── الإحصائيات ────────────────────────────────────────
+    "UP_CHART":     ("📊", "5028746137645876535", "الإحصائيات"),
+    "ID_BADGE":     ("🆔", "5965340962870793287", "المعرف"),
+    "GREEN_DOT":    ("🟢", "5364150781014470870", "مؤشر التشغيل"),
+    # ─── الملفات ───────────────────────────────────────────
+    "FOLDER3":      ("📂", "5332586662629227075", "قائمة الملفات"),
+    "UPLOAD3":      ("📤", "5363793701728450630", "رفع ملف"),
+    "NOTE":         ("📝", "5846014758364386016", "السجل"),
+    # ─── القائمة الرئيسية (أزرار) ──────────────────────────
+    "BTN_UPLOAD":   ("📤", "5433614747381538714", "زر رفع ملف"),
+    "BTN_FILES":    ("🗂", "5798700621242568649", "زر ملفاتي"),
+    "BTN_SPEED":    ("⚡", "5967301267549068409", "زر سرعة البوت"),
+    "BTN_STATS":    ("📈", "5028746137645876535", "زر إحصائياتي"),
+    "BTN_CONTACT":  ("📞", "5386335214811233128", "زر التواصل مع المالك"),
+    "BTN_ADMIN":    ("👑", "5965019600532806099", "زر لوحة الأدمن"),
+    "BTN_BACK":     ("🔙", "5253997076169115797", "زر رجوع"),
+    # ─── رسائل النظام ──────────────────────────────────────
+    "BANNED":       ("🚫", "5465665476971471368", "رسالة المحظور"),
+    "LOCKED":       ("🔒", "5384558459855324597", "رسالة البوت مغلق"),
+    "SUCCESS":      ("✅", "5967518416800585747", "رسالة نجاح"),
+    "ERROR":        ("❌", "5465665476971471368", "رسالة خطأ"),
+    "WARNING":      ("⚠️", "5467666648801048327", "رسالة تحذير"),
+    "SHIELD":       ("🛡", "5467666648801048327", "رسالة أمان"),
+    "NEW_USER":     ("👤", "5846115273484014293", "إشعار مستخدم جديد"),
+    # ─── أزرار السكربت ─────────────────────────────────────
+    "BTN_STOP":     ("⏹", "6084515769780013003",  "زر إيقاف السكربت"),
+    "BTN_RUN":      ("▶️", "5363845026587634369", "زر تشغيل السكربت"),
+    "BTN_RESTART":  ("🔄", "5226702984204797593", "زر إعادة تشغيل"),
+    "BTN_INSTALL":  ("📦", "5798700621242568649", "زر تثبيت المكتبات"),
+    "BTN_LOG":      ("📋", "5846014758364386016", "زر السجل"),
+    "BTN_UPDATE":   ("🔄", "5226702984204797593", "زر تحديث الملف"),
+    "BTN_DIAGNOSE": ("🔍", "5798700621242568649", "زر تشخيص"),
+    "BTN_DELETE":   ("🗑",  "5445267414562389170", "زر حذف"),
+    "BTN_AUTO_ON":  ("🔁", "5226702984204797593", "زر تلقائي مفعل"),
+    "BTN_APPROVE":  ("✅", "5967518416800585747", "زر موافقة"),
+    "BTN_REJECT":   ("❌", "5465665476971471368", "زر رفض"),
+    "BTN_VIEWCODE": ("👁", "5798700621242568649", "زر عرض الكود"),
+    "BTN_CONTACT_OPEN": ("💬", "5386335214811233128", "زر فتح المحادثة"),
+    # ─── حالات السكربت ─────────────────────────────────────
+    "STATUS_ON":    ("🟢", "5364150781014470870", "حالة يعمل"),
+    "STATUS_OFF":   ("🔴", "5798700621242568649", "حالة متوقف"),
+    "STATUS_WAIT":  ("⏳", "5382194935057372936", "حالة انتظار"),
+    "STATUS_STOP":  ("🛑", "6084515769780013003", "حالة توقف نهائي"),
+    # ─── رسائل الملفات ─────────────────────────────────────
+    "FILE_ICON":    ("📂", "5332586662629227075", "أيقونة الملف"),
+    "FILE_TYPE":    ("🔧", "5339139919434498721", "نوع الملف"),
+    "FILE_DATE":    ("📅", "5413704112220949842", "تاريخ الرفع"),
+    "FILE_CPU":     ("⚙️", "5339139919434498721", "مؤشر CPU"),
+    "FILE_RESTART": ("🔁", "5226702984204797593", "عداد إعادة التشغيل"),
+    "FILE_APPROVE": ("📋", "5846014758364386016", "طلب موافقة"),
+    "FILE_USER":    ("👤", "5846115273484014293", "مستخدم في الموافقة"),
+    "FILE_DOC":     ("📄", "5846014758364386016", "اسم الملف في الموافقة"),
+    # ─── مزايا جديدة ───────────────────────────────────────
+    "BTN_STATUS":   ("📡", "5798700621242568649", "زر حالة السكربتات"),
+    "BTN_HELP":     ("❓", "5798700621242568649", "زر المساعدة"),
+    "HELP_ICON":    ("📖", "5798700621242568649", "أيقونة المساعدة"),
+    "SCRIPT_ON":    ("🟢", "5364150781014470870", "سكربت شغال في القائمة"),
+    "SCRIPT_OFF":   ("⚫", "5798700621242568649", "سكربت واقف في القائمة"),
+    "UPTIME_ICON":  ("⏱", "5382194935057372936", "مدة التشغيل"),
+    "RESTART_CNT":  ("🔁", "5226702984204797593", "عدد إعادة التشغيل"),
+    "SUB_EXPIRY":   ("📅", "5413704112220949842", "تاريخ انتهاء الاشتراك"),
+    "NOTIFY_ICON":  ("🔔", "5798700621242568649", "إشعار توقف السكربت"),
+    "PYTHON_ICON":  ("🐍", "5798700621242568649", "أيقونة Python"),
+    "JS_ICON":      ("📜", "5798700621242568649", "أيقونة JavaScript"),
+}
+
 
 def init_db(owner_id: int):
     Base.metadata.create_all(engine)
-    
+
     # Run migrations for existing databases
     _run_migrations()
-    
+
     with get_session() as s:
         # Ensure owner exists
         owner = s.get(User, owner_id)
@@ -166,6 +259,11 @@ def init_db(owner_id: int):
             if not s.get(Config, k):
                 s.add(Config(key=k, value=v))
 
+        # Default emoji config
+        for key, (char, eid, desc) in DEFAULT_EMOJIS.items():
+            if not s.get(EmojiConfig, key):
+                s.add(EmojiConfig(key=key, emoji_id=eid, emoji_char=char, description=desc))
+
     logger.info("Database initialised.")
 
 
@@ -180,9 +278,10 @@ def _run_migrations():
         return
     
     migrations = [
-        ("users", "has_uploaded_free", "BOOLEAN DEFAULT 0"),
-        ("users", "ban_reason",        "TEXT"),
-        ("users", "subscription_expiry", "DATETIME"),
+        ("users", "has_uploaded_free",  "BOOLEAN DEFAULT 0"),
+        ("users", "ban_reason",         "TEXT"),
+        ("users", "subscription_expiry","DATETIME"),
+        ("users", "free_uploads_used",  "INTEGER DEFAULT 0"),
     ]
     
     try:
@@ -398,3 +497,56 @@ def get_pending_approvals() -> list[tuple[Approval, Script]]:
             s.expunge(sc)
             result.append((ap, sc))
         return result
+
+
+# ─── Emoji Config Helpers ────────────────────────────────────
+
+def get_emoji(key: str) -> tuple[str, str]:
+    """Returns (emoji_char, emoji_id) for a given key. Falls back to DEFAULT_EMOJIS."""
+    with get_session() as s:
+        row = s.get(EmojiConfig, key)
+        if row:
+            return (row.emoji_char, row.emoji_id)
+    # fallback to hardcoded defaults
+    default = DEFAULT_EMOJIS.get(key)
+    if default:
+        return (default[0], default[1])
+    return ("❓", "")
+
+
+def set_emoji(key: str, emoji_id: str, emoji_char: str = None):
+    """Update emoji_id (and optionally emoji_char) for a key."""
+    with get_session() as s:
+        row = s.get(EmojiConfig, key)
+        if row:
+            row.emoji_id = emoji_id
+            if emoji_char:
+                row.emoji_char = emoji_char
+        else:
+            char = emoji_char or DEFAULT_EMOJIS.get(key, ("❓",))[0]
+            desc = DEFAULT_EMOJIS.get(key, ("", "", ""))[2]
+            s.add(EmojiConfig(key=key, emoji_id=emoji_id, emoji_char=char, description=desc))
+
+
+def get_all_emojis() -> list[EmojiConfig]:
+    """Return all emoji config rows."""
+    with get_session() as s:
+        rows = s.query(EmojiConfig).order_by(EmojiConfig.key).all()
+        for r in rows:
+            s.expunge(r)
+        return rows
+
+
+def get_free_upload_count(user_id: int) -> int:
+    """عدد الملفات اللي رفعها المستخدم المجاني تاريخياً (مش الموجودة حالياً)."""
+    with get_session() as s:
+        user = s.get(User, user_id)
+        return user.free_uploads_used if user and hasattr(user, 'free_uploads_used') else 0
+
+
+def e(key: str) -> str:
+    """
+    اختصار لـ get_emoji — يرجع الحرف فقط للاستخدام في النصوص.
+    مثال: f"{e('WAVE')} أهلاً"
+    """
+    return get_emoji(key)[0]

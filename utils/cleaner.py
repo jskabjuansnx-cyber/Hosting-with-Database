@@ -2,6 +2,7 @@ import os
 import subprocess
 import logging
 import psutil
+from datetime import datetime, timedelta
 from config import LOGS_DIR
 
 logger = logging.getLogger(__name__)
@@ -63,15 +64,49 @@ async def run_system_cleanup(context=None):
     Cleans logs, clears pip cache, and kills orphans.
     """
     logger.info("=== STARTING PERIODIC SYSTEM CLEANUP ===")
-    
+
     # 1. Clean Pip cache for disk space
     clean_pip_cache()
-    
+
     # 2. Shrink log files
     shrink_log_files()
-    
+
     # 3. Clean zombies (memory footprint)
     from runner import cleanup_zombie_processes
     cleanup_zombie_processes()
-    
+
     logger.info("=== SYSTEM CLEANUP DONE ===")
+
+
+async def check_expiring_subscriptions(context):
+    """
+    Job يشتغل يومياً — يبعت إشعار للمستخدمين اللي اشتراكهم هينتهي خلال يوم.
+    """
+    from database import get_session, User
+
+    now = datetime.utcnow()
+    warning_threshold = now + timedelta(days=1)
+
+    with get_session() as s:
+        expiring = s.query(User).filter(
+            User.subscription_expiry != None,
+            User.subscription_expiry > now,
+            User.subscription_expiry <= warning_threshold,
+            User.is_banned == False,
+        ).all()
+        user_data = [(u.id, u.subscription_expiry) for u in expiring]
+
+    for user_id, expiry in user_data:
+        remaining = expiry - now
+        hours = int(remaining.total_seconds() // 3600)
+        try:
+            await context.bot.send_message(
+                chat_id=user_id,
+                text=(
+                    f"⚠️ تنبيه: اشتراكك سينتهي خلال {hours} ساعة تقريباً.\n"
+                    "تواصل مع المالك لتجديد الاشتراك."
+                )
+            )
+            logger.info(f"Sent expiry warning to user {user_id}")
+        except Exception as e:
+            logger.warning(f"Failed to notify user {user_id} about expiry: {e}")

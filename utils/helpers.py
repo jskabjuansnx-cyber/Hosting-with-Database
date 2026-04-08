@@ -68,11 +68,3 @@ def format_uptime(start_time: datetime) -> str:
     h, rem = divmod(int(delta.total_seconds()), 3600)
     m, s   = divmod(rem, 60)
     return f"{h}h {m}m {s}s"
-
-
-def safe_send(bot, chat_id: int, text: str, **kwargs):
-    """Send message with error handling."""
-    try:
-        return bot.send_message(chat_id, text, **kwargs)
-    except Exception as e:
-        logger.error(f"Failed to send message to {chat_id}: {e}")

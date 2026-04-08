@@ -12,7 +12,7 @@ import runner
 import keep_alive
 from config import BOT_TOKEN, OWNER_ID
 from handlers import user, files, admin
-from utils.cleaner import run_system_cleanup
+from utils.cleaner import run_system_cleanup, check_expiring_subscriptions
 
 # ─── Logging ────────────────────────────────────────────────
 logging.basicConfig(
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 async def on_startup(app: Application):
     logger.info("Bot starting up...")
-    runner.restore_running_scripts()
+    runner.restore_running_scripts(bot_app=app)
     logger.info("Bot ready.")
 
 
@@ -72,6 +72,9 @@ def main():
     # Schedule background cleanup system (Disk and RAM saver for Free Tiers)
     # Runs every 5 hours (18000 seconds), starts 1 hour (3600 seconds) after boot.
     app.job_queue.run_repeating(run_system_cleanup, interval=18000, first=3600)
+
+    # Check for expiring subscriptions daily (every 24 hours, first check after 1 minute)
+    app.job_queue.run_repeating(check_expiring_subscriptions, interval=86400, first=60)
 
     # Graceful shutdown on SIGTERM (Railway sends this)
     def _handle_signal(sig, frame):

@@ -1,11 +1,24 @@
+# Sensitive
 .env
+*.env
+
+# Database
 *.db
 *.db-wal
 *.db-shm
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+
+# User data (لا ترفع ملفات المستخدمين)
 logs/
 scripts/
 data/
+
+# OS
 .DS_Store
+Thumbs.db

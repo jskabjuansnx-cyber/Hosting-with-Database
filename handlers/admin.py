@@ -39,18 +39,20 @@ def _admin_panel_kb() -> dict:
     run_on    = db.get_flag("run_enabled")
     appr_on   = db.get_flag("approval_required")
     locked    = db.get_flag("bot_locked")
+    bk_id     = db.get_emoji("BTN_BACK")[1]
 
     return markup(
         [btn("🤖 البوت: مفعل" if bot_on else "🤖 البوت: معطل", "toggle_bot_enabled", style="success" if bot_on else "danger")],
         [btn("📤 الرفع: مفعل" if upload_on else "📤 الرفع: معطل", "toggle_upload_enabled", style="success" if upload_on else "danger")],
-        [btn("التشغيل: مفعل" if run_on else "التشغيل: معطل", "toggle_run_enabled", style="success" if run_on else "danger")],
-        [btn("الموافقة: مفعلة" if appr_on else "الموافقة: معطلة", "toggle_approval_required", style="success" if appr_on else "danger")],
+        [btn("▶️ التشغيل: مفعل" if run_on else "⏹ التشغيل: معطل", "toggle_run_enabled", style="success" if run_on else "danger")],
+        [btn("✅ الموافقة: مفعلة" if appr_on else "❌ الموافقة: معطلة", "toggle_approval_required", style="success" if appr_on else "danger")],
         [btn("👥 المستخدمون", "admin_users", style="primary"), btn("💳 الاشتراكات", "admin_subscriptions", style="primary")],
-        [btn("📋 الموافقات", "admin_approvals", style="primary"), btn("الاعدادات", "admin_settings", style="primary")],
-        [btn("فتح البوت" if locked else "🔒 قفل البوت", "admin_lock_bot", style="success" if locked else "danger")],
+        [btn("📋 الموافقات", "admin_approvals", style="primary"), btn("⚙️ الإعدادات", "admin_settings", style="primary")],
+        [btn("📊 إحصائيات البوت", "admin_stats", style="primary")],
+        [btn("🔓 فتح البوت" if locked else "🔒 قفل البوت", "admin_lock_bot", style="success" if locked else "danger")],
         [btn("📢 بث رسالة", "admin_broadcast", style="primary")],
-        [btn("تشغيل الكل", "admin_run_all", style="success"), btn("ايقاف الكل", "admin_stop_all", style="danger")],
-        [btn("رجوع", "main_menu", style="danger", icon=BACK)],
+        [btn("▶️ تشغيل الكل", "admin_run_all", style="success"), btn("⏹ إيقاف الكل", "admin_stop_all", style="danger")],
+        [btn("رجوع", "main_menu", style="danger", icon=bk_id)],
     )
 
 
@@ -71,20 +73,22 @@ async def cb_admin_panel(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_toggle(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    key   = query.data.replace("toggle_", "")
-    
-    # Map callback keys to flag keys
+
+    # Map full callback_data to flag keys
     key_map = {
-        "toggle_bot_enabled": "bot_enabled",
-        "toggle_upload_enabled": "upload_enabled",
-        "toggle_run_enabled": "run_enabled",
+        "toggle_bot_enabled":       "bot_enabled",
+        "toggle_upload_enabled":    "upload_enabled",
+        "toggle_run_enabled":       "run_enabled",
         "toggle_approval_required": "approval_required",
     }
-    
-    flag_key = key_map.get(key, key)
+
+    flag_key = key_map.get(query.data)
+    if not flag_key:
+        return
+
     current = db.get_flag(flag_key)
     db.set_flag(flag_key, not current)
-    
+
     await ctx.bot.send_message(
         chat_id=query.message.chat_id,
         text="👑 لوحة الأدمن:",
@@ -104,7 +108,7 @@ async def cb_admin_approvals(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await ctx.bot.send_message(
             chat_id=query.message.chat_id,
             text="✅ لا توجد طلبات معلقة.",
-            reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=BACK)])
+            reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
         )
         return
 
@@ -115,7 +119,7 @@ async def cb_admin_approvals(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             btn("✅ موافقة",  f"approve_{ap.id}", style="success"),
             btn("❌ رفض",     f"reject_{ap.id}",  style="danger"),
         ])
-    rows.append([btn("رجوع", "admin_panel", style="danger", icon=BACK)])
+    rows.append([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
 
     await ctx.bot.send_message(
         chat_id=query.message.chat_id,
@@ -209,27 +213,25 @@ async def cb_stop_all(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_admin_settings(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    free  = db.get_config("free_file_limit",  "1")
+    free  = db.get_config("free_file_limit",  "3")
     paid  = db.get_config("paid_file_limit",  "15")
     maxp  = db.get_config("max_processes",    "50")
     text  = (
         f"⚙️ الإعدادات الحالية:\n\n"
         f"📁 حد الملفات المجاني: {free} ملف\n"
         f"💎 حد الملفات المشترك: {paid} ملفات\n"
-        f"⚙️ أقصى عمليات: {maxp}\n\n"
-        "لتغيير الحد المشترك:\n"
-        "`/setconfig paid_file_limit 20`\n\n"
-        "لتغيير حد المجاني:\n"
-        "`/setconfig free_file_limit 1`"
+        f"⚙️ أقصى عمليات: {maxp}\n"
     )
     await ctx.bot.send_message(
         chat_id=query.message.chat_id,
         text=text,
         parse_mode="Markdown",
-        reply_markup=markup([
-            [btn("📁 تغيير حد المشترك", "set_paid_limit", style="primary")],
-            [btn("رجوع", "admin_panel", style="danger", icon=BACK)]
-        ])
+        reply_markup=markup(
+            [btn("📁 تغيير حد المجاني",   "set_free_limit",  style="primary"),
+             btn("💎 تغيير حد المشترك",   "set_paid_limit",  style="primary")],
+            [btn("🎨 إدارة الإيموجيات",   "admin_emojis",    style="primary")],
+            [btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])]
+        )
     )
 
 
@@ -240,9 +242,163 @@ async def cb_set_paid_limit(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     ctx.user_data["awaiting_paid_limit"] = True
     await ctx.bot.send_message(
         chat_id=query.message.chat_id,
-        text="📁 أرسل عدد الملفات الجديد للمشتركين:\n"
-             "(مثال: 20, 30, 50, 100)",
+        text="💎 أرسل عدد الملفات الجديد للمشتركين:\n(مثال: 20, 30, 50, 100)",
         reply_markup=markup([btn("❌ إلغاء", "admin_settings", style="danger")])
+    )
+
+
+@admin_only
+async def cb_set_free_limit(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_free_limit"] = True
+    current = db.get_config("free_file_limit", "3")
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=f"📁 الحد الحالي للمجاني: {current} ملف\n\nأرسل العدد الجديد:\n(مثال: 1, 3, 5)",
+        reply_markup=markup([btn("❌ إلغاء", "admin_settings", style="danger")])
+    )
+
+
+async def handle_free_limit(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not ctx.user_data.get("awaiting_free_limit"):
+        return
+    ctx.user_data["awaiting_free_limit"] = False
+    try:
+        new_limit = int(update.message.text.strip())
+        if new_limit < 1:
+            raise ValueError
+        db.set_config("free_file_limit", str(new_limit))
+        await update.message.reply_text(f"✅ تم تغيير حد الملفات المجاني إلى {new_limit}")
+    except ValueError:
+        await update.message.reply_text("❌ يجب إرسال رقم صحيح أكبر من صفر")
+
+
+# ─── Emoji Management ───────────────────────────────────────
+
+# تصنيف الإيموجيات بفئات مفهومة للأدمن
+EMOJI_CATEGORIES = {
+    "رسالة الترحيب /start":      ["WAVE", "BRAIN", "BTN_UPLOAD", "CROWN2", "PAID_USER", "FREE_USER", "FOLDER2"],
+    "أزرار القائمة الرئيسية":    ["BTN_UPLOAD", "BTN_FILES", "BTN_SPEED", "BTN_STATS", "BTN_STATUS", "BTN_HELP", "BTN_CONTACT", "BTN_ADMIN", "BTN_BACK"],
+    "صفحة السرعة والإحصائيات":  ["LIGHTNING2", "TIMER", "CLOCK", "MASK2", "UP_CHART", "ID_BADGE", "GREEN_DOT", "UPTIME_ICON", "RESTART_CNT", "SUB_EXPIRY"],
+    "صفحة حالة السكربتات":       ["BTN_STATUS", "SCRIPT_ON", "SCRIPT_OFF", "UPTIME_ICON", "RESTART_CNT", "FILE_TYPE", "FILE_DATE", "STATUS_STOP"],
+    "صفحة المساعدة":             ["HELP_ICON", "PYTHON_ICON", "JS_ICON", "NOTIFY_ICON", "BRAIN", "BTN_UPLOAD"],
+    "أزرار السكربت":             ["BTN_RUN", "BTN_STOP", "BTN_RESTART", "BTN_INSTALL", "BTN_LOG", "BTN_UPDATE", "BTN_DIAGNOSE", "BTN_DELETE", "BTN_AUTO_ON"],
+    "حالات السكربت":             ["STATUS_ON", "STATUS_OFF", "STATUS_WAIT", "STATUS_STOP", "FILE_CPU", "FILE_RESTART"],
+    "صفحة الملفات":              ["FOLDER3", "UPLOAD3", "NOTE", "FILE_ICON", "FILE_TYPE", "FILE_DATE", "FILE_APPROVE", "FILE_USER", "FILE_DOC"],
+    "أزرار الموافقة":            ["BTN_APPROVE", "BTN_REJECT", "BTN_VIEWCODE"],
+    "رسائل النظام":              ["SUCCESS", "ERROR", "WARNING", "SHIELD", "BANNED", "LOCKED", "NEW_USER", "STATUS_WAIT"],
+    "أزرار التواصل":             ["BTN_CONTACT", "BTN_CONTACT_OPEN"],
+}
+
+
+@admin_only
+async def cb_admin_emojis(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """عرض قائمة الإيموجيات مقسمة بفئات."""
+    query = update.callback_query
+    await query.answer()
+
+    # عرض الفئات كأزرار
+    rows = []
+    for category in EMOJI_CATEGORIES:
+        rows.append([btn(f"📂 {category}", f"emoji_cat_{category}", style="primary")])
+    rows.append([btn("رجوع", "admin_settings", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
+
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=(
+            "🎨 إدارة الإيموجيات المتحركة\n\n"
+            "اختر الفئة التي تريد تعديلها:\n\n"
+            "💡 كيف تغير إيموجي:\n"
+            "١. اضغط على الفئة\n"
+            "٢. اختر الإيموجي\n"
+            "٣. ابعت الـ Custom ID الجديد\n\n"
+            "للحصول على الـ ID: ابعت إيموجي متحرك ثم اكتب /getid كـ reply عليه."
+        ),
+        reply_markup=markup(*rows)
+    )
+
+
+@admin_only
+async def cb_emoji_category(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """عرض إيموجيات فئة معينة."""
+    query    = update.callback_query
+    await query.answer()
+    category = query.data.replace("emoji_cat_", "")
+    keys     = EMOJI_CATEGORIES.get(category, [])
+
+    rows = []
+    seen = set()
+    for key in keys:
+        if key in seen:
+            continue
+        seen.add(key)
+        char, eid = db.get_emoji(key)
+        desc = db.DEFAULT_EMOJIS.get(key, ("", "", ""))[2]
+        rows.append([btn(
+            f"{char}  {desc}",
+            f"edit_emoji_{key}",
+            style="primary"
+        )])
+    rows.append([btn("رجوع للفئات", "admin_emojis", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
+
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=f"🎨 {category}\n\nاضغط على الإيموجي لتغييره:",
+        reply_markup=markup(*rows)
+    )
+
+
+@admin_only
+async def cb_edit_emoji(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """يطلب من الأدمن إرسال الـ ID الجديد للإيموجي."""
+    query     = update.callback_query
+    await query.answer()
+    emoji_key = query.data.replace("edit_emoji_", "")
+    char, eid = db.get_emoji(emoji_key)
+    desc      = db.DEFAULT_EMOJIS.get(emoji_key, ("", "", ""))[2]
+
+    ctx.user_data["awaiting_emoji_key"] = emoji_key
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=(
+            f"✏️ تعديل: {char} — {desc}\n\n"
+            f"الـ ID الحالي:\n`{eid}`\n\n"
+            "أرسل الـ Custom Emoji ID الجديد:\n"
+            "_(رقم من 15-19 خانة)_\n\n"
+            "للحصول على الـ ID:\n"
+            "ابعت الإيموجي المتحرك ثم اكتب /getid كـ reply عليه."
+        ),
+        parse_mode="Markdown",
+        reply_markup=markup([btn("❌ إلغاء", "admin_emojis", style="danger")])
+    )
+
+
+async def handle_emoji_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """يستقبل الـ ID الجديد ويحفظه."""
+    if not ctx.user_data.get("awaiting_emoji_key"):
+        return
+    emoji_key = ctx.user_data.pop("awaiting_emoji_key")
+    new_id = update.message.text.strip()
+
+    if not new_id.isdigit() or len(new_id) < 10:
+        er, er_id = db.get_emoji("ERROR")
+        t = f"{er} الـ ID غير صحيح. يجب أن يكون رقماً من 15-19 خانة.\nاستخدم /getid للحصول على الـ ID الصحيح."
+        await update.message.reply_text(t, entities=build_entities(t, [(er, er_id)]))
+        ctx.user_data["awaiting_emoji_key"] = emoji_key
+        return
+
+    db.set_emoji(emoji_key, new_id)
+    char, saved_id = db.get_emoji(emoji_key)
+    desc = db.DEFAULT_EMOJIS.get(emoji_key, ("", "", ""))[2]
+
+    ok, ok_id = db.get_emoji("SUCCESS")
+    t = f"{ok} تم تحديث: {desc}\nالإيموجي الجديد: {char}\nالـ ID: `{new_id}`"
+    await update.message.reply_text(
+        t,
+        entities=build_entities(t, [(ok, ok_id), (char, saved_id)]),
+        parse_mode="Markdown",
+        reply_markup=markup([btn("رجوع لإدارة الإيموجيات", "admin_emojis", style="primary")])
     )
 
 
@@ -293,7 +449,7 @@ async def cb_admin_users(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         "`/removeadmin <user_id>`\n"
         "`/subscribe <user_id> <أيام>`",
         parse_mode="Markdown",
-        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=BACK)])
+        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
     )
 
 
@@ -430,7 +586,7 @@ async def cb_admin_subscriptions(update: Update, ctx: ContextTypes.DEFAULT_TYPE)
              "`/unsubscribe <user_id>` - إلغاء اشتراك\n"
              "`/checksubscription <user_id>` - فحص اشتراك",
         parse_mode="Markdown",
-        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=BACK)])
+        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
     )
 
 
@@ -444,7 +600,7 @@ async def cb_admin_lock_bot(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await ctx.bot.send_message(
         chat_id=query.message.chat_id,
         text=f"🔒 تم {status} البوت للمستخدمين العاديين.",
-        reply_markup=markup([btn("لوحة الأدمن", "admin_panel", style="danger", icon=BACK)])
+        reply_markup=markup([btn("لوحة الأدمن", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
     )
 
 
@@ -489,35 +645,95 @@ async def handle_broadcast_message(update: Update, ctx: ContextTypes.DEFAULT_TYP
     )
 
 
+# ─── Bot Stats ──────────────────────────────────────────────
+
+@admin_only
+async def cb_admin_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    from database import get_session, User, Script, ScriptStatus
+    from datetime import datetime
+
+    with get_session() as s:
+        total_users       = s.query(User).count()
+        banned_users      = s.query(User).filter_by(is_banned=True).count()
+        subscribed_users  = s.query(User).filter(
+            User.subscription_expiry != None,
+            User.subscription_expiry > datetime.utcnow()
+        ).count()
+        admin_users       = s.query(User).filter_by(is_admin=True).count()
+        total_scripts     = s.query(Script).count()
+        running_scripts   = s.query(ScriptStatus).filter_by(is_running=True).count()
+
+    text = (
+        "📊 إحصائيات البوت\n\n"
+        f"👥 إجمالي المستخدمين: {total_users}\n"
+        f"💎 المشتركين: {subscribed_users}\n"
+        f"👑 الأدمنز: {admin_users}\n"
+        f"🚫 المحظورين: {banned_users}\n\n"
+        f"📁 إجمالي السكربتات: {total_scripts}\n"
+        f"🟢 يعمل الآن: {running_scripts}\n"
+        f"⚙️ في الذاكرة: {len(runner._processes)}"
+    )
+
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=text,
+        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
+    )
+
+
+async def handle_admin_text_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """Handler موحد لكل مدخلات النص من الأدمن — يمنع التعارض بين الـ handlers."""
+    if not db.is_admin(update.effective_user.id):
+        return
+
+    if ctx.user_data.get("awaiting_broadcast"):
+        await handle_broadcast_message(update, ctx)
+        return
+
+    if ctx.user_data.get("awaiting_paid_limit"):
+        await handle_paid_limit(update, ctx)
+        return
+
+    if ctx.user_data.get("awaiting_free_limit"):
+        await handle_free_limit(update, ctx)
+        return
+
+    if ctx.user_data.get("awaiting_emoji_key"):
+        await handle_emoji_input(update, ctx)
+        return
+
+
 # ─── Register ───────────────────────────────────────────────
 
 def register(app):
-    app.add_handler(CallbackQueryHandler(cb_admin_panel,      pattern="^admin_panel$"))
-    app.add_handler(CallbackQueryHandler(cb_toggle,           pattern=r"^toggle_\w+$"))
-    app.add_handler(CallbackQueryHandler(cb_admin_approvals,  pattern="^admin_approvals$"))
-    app.add_handler(CallbackQueryHandler(cb_approve,          pattern=r"^approve_\d+$"))
-    app.add_handler(CallbackQueryHandler(cb_reject,           pattern=r"^reject_\d+$"))
-    app.add_handler(CallbackQueryHandler(cb_run_all,          pattern="^admin_run_all$"))
-    app.add_handler(CallbackQueryHandler(cb_stop_all,         pattern="^admin_stop_all$"))
-    app.add_handler(CallbackQueryHandler(cb_admin_settings,   pattern="^admin_settings$"))
-    app.add_handler(CallbackQueryHandler(cb_admin_users,      pattern="^admin_users$"))
-    app.add_handler(CallbackQueryHandler(cb_admin_broadcast,  pattern="^admin_broadcast$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_panel,         pattern="^admin_panel$"))
+    app.add_handler(CallbackQueryHandler(cb_toggle,              pattern=r"^toggle_\w+$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_approvals,     pattern="^admin_approvals$"))
+    app.add_handler(CallbackQueryHandler(cb_approve,             pattern=r"^approve_\d+$"))
+    app.add_handler(CallbackQueryHandler(cb_reject,              pattern=r"^reject_\d+$"))
+    app.add_handler(CallbackQueryHandler(cb_run_all,             pattern="^admin_run_all$"))
+    app.add_handler(CallbackQueryHandler(cb_stop_all,            pattern="^admin_stop_all$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_settings,      pattern="^admin_settings$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_users,         pattern="^admin_users$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_broadcast,     pattern="^admin_broadcast$"))
     app.add_handler(CallbackQueryHandler(cb_admin_subscriptions, pattern="^admin_subscriptions$"))
-    app.add_handler(CallbackQueryHandler(cb_admin_lock_bot,   pattern="^admin_lock_bot$"))
-    app.add_handler(CallbackQueryHandler(cb_set_paid_limit,   pattern="^set_paid_limit$"))
-    app.add_handler(CommandHandler("ban",         cmd_ban))
-    app.add_handler(CommandHandler("unban",       cmd_unban))
-    app.add_handler(CommandHandler("addadmin",    cmd_addadmin))
-    app.add_handler(CommandHandler("removeadmin", cmd_removeadmin))
-    app.add_handler(CommandHandler("subscribe",   cmd_subscribe))
-    app.add_handler(CommandHandler("unsubscribe", cmd_unsubscribe))
+    app.add_handler(CallbackQueryHandler(cb_admin_lock_bot,      pattern="^admin_lock_bot$"))
+    app.add_handler(CallbackQueryHandler(cb_set_paid_limit,      pattern="^set_paid_limit$"))
+    app.add_handler(CallbackQueryHandler(cb_set_free_limit,      pattern="^set_free_limit$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_stats,         pattern="^admin_stats$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_emojis,        pattern="^admin_emojis$"))
+    app.add_handler(CallbackQueryHandler(cb_emoji_category,      pattern=r"^emoji_cat_.+$"))
+    app.add_handler(CallbackQueryHandler(cb_edit_emoji,          pattern=r"^edit_emoji_\w+$"))
+    app.add_handler(CommandHandler("ban",               cmd_ban))
+    app.add_handler(CommandHandler("unban",             cmd_unban))
+    app.add_handler(CommandHandler("addadmin",          cmd_addadmin))
+    app.add_handler(CommandHandler("removeadmin",       cmd_removeadmin))
+    app.add_handler(CommandHandler("subscribe",         cmd_subscribe))
+    app.add_handler(CommandHandler("unsubscribe",       cmd_unsubscribe))
     app.add_handler(CommandHandler("checksubscription", cmd_checksubscription))
-    app.add_handler(CommandHandler("setconfig",   cmd_setconfig))
-    app.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND,
-        handle_broadcast_message
-    ))
-    app.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND,
-        handle_paid_limit
-    ))
+    app.add_handler(CommandHandler("setconfig",         cmd_setconfig))
+    # handler واحد موحد بدل اتنين متعارضين
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_admin_text_input))
