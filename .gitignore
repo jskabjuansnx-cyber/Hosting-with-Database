@@ -1,24 +1,19 @@
-# Sensitive
+# ─── حساس — لا ترفع أبداً ───────────────────────────────────
 .env
 *.env
 
-# Database
-*.db
-*.db-wal
-*.db-shm
+# ─── بيانات المستخدمين — لا ترفع ────────────────────────────
+data/bot.db-wal
+data/bot.db-shm
+scripts/
+logs/
 
-# Python
+# ─── Python ──────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
 
-# User data (لا ترفع ملفات المستخدمين)
-logs/
-scripts/
-data/
-
-# OS
+# ─── OS ──────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

@@ -15,6 +15,7 @@ from config import OWNER_ID, ADMIN_FILE_LIMIT, WELCOME_PHOTO
 from utils.helpers import format_uptime
 from utils.colored_buttons import btn, markup
 from utils.msg_builder import build_message, build_entities, utf16_len, utf16_offset
+from utils.sub_guard import check_and_guard, is_channel_member, send_subscription_required
 
 logger = logging.getLogger(__name__)
 _bot_start_time = datetime.utcnow()
@@ -88,6 +89,10 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             text,
             entities=build_entities(text, [(lock_char, lock_id)])
         )
+        return
+
+    # ─── فحص الاشتراك الإجباري ───────────────────────────
+    if not await check_and_guard(update, ctx):
         return
 
     # إشعار المالك بمستخدم جديد
@@ -202,6 +207,8 @@ async def cmd_getid(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_ping(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     t0       = time.time()
     test_msg = await ctx.bot.send_message(query.message.chat_id, "⏱ جاري قياس السرعة...")
 
@@ -238,6 +245,8 @@ async def cb_ping(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_my_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query   = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     user_id = query.from_user.id
     scripts = db.get_user_scripts(user_id)
     running_scripts = [s for s in scripts if db.get_script_status(s.id) and db.get_script_status(s.id).is_running]
@@ -301,6 +310,8 @@ async def cb_my_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_upload_info(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     if not db.get_flag("upload_enabled"):
         await query.answer("❌ رفع الملفات معطل حالياً.", show_alert=True)
         return
@@ -337,6 +348,8 @@ async def cb_contact_owner(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def cb_main_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query   = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     user    = query.from_user
     user_id = user.id
 
@@ -389,6 +402,8 @@ async def cb_scripts_status(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     """حالة كل السكربتات مع تفاصيل كاملة."""
     query   = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     user_id = query.from_user.id
     scripts = db.get_user_scripts(user_id)
     bk_id   = db.get_emoji("BTN_BACK")[1]
@@ -462,6 +477,8 @@ async def cb_help_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     """صفحة المساعدة وكيفية الاستخدام."""
     query   = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     bk_id   = db.get_emoji("BTN_BACK")[1]
 
     h_char,  h_id  = db.get_emoji("HELP_ICON")
@@ -505,13 +522,56 @@ async def cb_help_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def cb_check_subscription(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    """يتحقق من اشتراك المستخدم في القناة عند الضغط على الزر."""
+    query   = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+
+    if await is_channel_member(ctx.bot, user_id):
+        sf_char, sf_id = db.get_emoji("SUB_SUCCESS")
+        bk_id = db.get_emoji("BTN_BACK")[1]
+        text = f"{sf_char} تم التحقق! يمكنك الآن استخدام البوت."
+        await ctx.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=text,
+            entities=build_entities(text, [(sf_char, sf_id)]),
+            reply_markup=markup([btn("القائمة الرئيسية", "main_menu", style="success", icon=bk_id)])
+        )
+    else:
+        # فشل التحقق — رسالة واضحة مع إبراز الخطأ
+        channel_username = db.get_config("sub_channel_username", "").strip().lstrip("@")
+        channel_title    = db.get_config("sub_channel_title", "القناة").strip()
+
+        fl_char, fl_id = db.get_emoji("SUB_FAIL")
+        ch_char, ch_id = db.get_emoji("SUB_CHANNEL")
+        jn_char, jn_id = db.get_emoji("SUB_JOIN")
+        ck_char, ck_id = db.get_emoji("SUB_CHECK")
+
+        text = (
+            f"{fl_char} لم يتم التحقق!\n\n"
+            f"أنت لم تشترك في {channel_title} بعد.\n\n"
+            f"{ch_char} اضغط 'انضم' ثم عد واضغط 'تحقق' مجدداً."
+        )
+        await ctx.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=text,
+            entities=build_entities(text, [(fl_char, fl_id), (ch_char, ch_id)]),
+            reply_markup=markup(
+                [btn(f"انضم لـ {channel_title}", url=f"https://t.me/{channel_username}", style="success", icon=jn_id)],
+                [btn("تحقق من اشتراكي", "check_subscription", style="primary", icon=ck_id)],
+            )
+        )
+
+
 def register(app):
     app.add_handler(CommandHandler("start",  cmd_start))
     app.add_handler(CommandHandler("getid",  cmd_getid))
-    app.add_handler(CallbackQueryHandler(cb_ping,            pattern="^ping$"))
-    app.add_handler(CallbackQueryHandler(cb_my_stats,        pattern="^my_stats$"))
-    app.add_handler(CallbackQueryHandler(cb_scripts_status,  pattern="^scripts_status$"))
-    app.add_handler(CallbackQueryHandler(cb_help_menu,       pattern="^help_menu$"))
-    app.add_handler(CallbackQueryHandler(cb_upload_info,     pattern="^upload_info$"))
-    app.add_handler(CallbackQueryHandler(cb_contact_owner,   pattern="^contact_owner$"))
-    app.add_handler(CallbackQueryHandler(cb_main_menu,       pattern="^main_menu$"))
+    app.add_handler(CallbackQueryHandler(cb_ping,                pattern="^ping$"))
+    app.add_handler(CallbackQueryHandler(cb_my_stats,            pattern="^my_stats$"))
+    app.add_handler(CallbackQueryHandler(cb_scripts_status,      pattern="^scripts_status$"))
+    app.add_handler(CallbackQueryHandler(cb_help_menu,           pattern="^help_menu$"))
+    app.add_handler(CallbackQueryHandler(cb_upload_info,         pattern="^upload_info$"))
+    app.add_handler(CallbackQueryHandler(cb_contact_owner,       pattern="^contact_owner$"))
+    app.add_handler(CallbackQueryHandler(cb_main_menu,           pattern="^main_menu$"))
+    app.add_handler(CallbackQueryHandler(cb_check_subscription,  pattern="^check_subscription$"))

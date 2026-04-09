@@ -15,6 +15,7 @@ from utils.security import scan_file
 from utils.colored_buttons import btn, markup
 from utils.emoji_ids import BACK, TRASH, NOTE
 from utils.msg_builder import build_message, build_entities
+from utils.sub_guard import check_and_guard
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +104,10 @@ async def handle_upload(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         e, eid = db.get_emoji("LOCKED")
         t = f"{e} البوت مغلق حالياً للصيانة."
         await update.message.reply_text(t, entities=build_entities(t, [(e, eid)]))
+        return
+
+    # ─── فحص الاشتراك الإجباري ───────────────────────────
+    if not await check_and_guard(update, ctx):
         return
 
     db.upsert_user(user.id, user.username, user.full_name)
@@ -247,6 +252,8 @@ async def _notify_admins_approval(ctx, script: db.Script, approval: db.Approval)
 async def cb_my_files(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query   = update.callback_query
     await query.answer()
+    if not await check_and_guard(update, ctx):
+        return
     user_id = query.from_user.id
     scripts = db.get_user_scripts(user_id)
     bk_id   = db.get_emoji("BTN_BACK")[1]

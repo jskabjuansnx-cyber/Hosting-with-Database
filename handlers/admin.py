@@ -39,6 +39,7 @@ def _admin_panel_kb() -> dict:
     run_on    = db.get_flag("run_enabled")
     appr_on   = db.get_flag("approval_required")
     locked    = db.get_flag("bot_locked")
+    sub_on    = db.get_flag("forced_subscription")
     bk_id     = db.get_emoji("BTN_BACK")[1]
 
     return markup(
@@ -46,6 +47,7 @@ def _admin_panel_kb() -> dict:
         [btn("📤 الرفع: مفعل" if upload_on else "📤 الرفع: معطل", "toggle_upload_enabled", style="success" if upload_on else "danger")],
         [btn("▶️ التشغيل: مفعل" if run_on else "⏹ التشغيل: معطل", "toggle_run_enabled", style="success" if run_on else "danger")],
         [btn("✅ الموافقة: مفعلة" if appr_on else "❌ الموافقة: معطلة", "toggle_approval_required", style="success" if appr_on else "danger")],
+        [btn("🔔 الاشتراك الإجباري: مفعل" if sub_on else "🔔 الاشتراك الإجباري: معطل", "admin_forced_sub", style="success" if sub_on else "danger")],
         [btn("👥 المستخدمون", "admin_users", style="primary"), btn("💳 الاشتراكات", "admin_subscriptions", style="primary")],
         [btn("📋 الموافقات", "admin_approvals", style="primary"), btn("⚙️ الإعدادات", "admin_settings", style="primary")],
         [btn("📊 إحصائيات البوت", "admin_stats", style="primary")],
@@ -289,6 +291,7 @@ EMOJI_CATEGORIES = {
     "أزرار الموافقة":            ["BTN_APPROVE", "BTN_REJECT", "BTN_VIEWCODE"],
     "رسائل النظام":              ["SUCCESS", "ERROR", "WARNING", "SHIELD", "BANNED", "LOCKED", "NEW_USER", "STATUS_WAIT"],
     "أزرار التواصل":             ["BTN_CONTACT", "BTN_CONTACT_OPEN"],
+    "الاشتراك الإجباري":         ["SUB_REQUIRED", "SUB_CHANNEL", "SUB_CHECK", "SUB_JOIN", "SUB_SUCCESS", "SUB_FAIL"],
 }
 
 
@@ -684,6 +687,155 @@ async def cb_admin_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     )
 
 
+# ─── Forced Subscription Management ────────────────────────
+
+def _forced_sub_kb() -> dict:
+    sub_on   = db.get_flag("forced_subscription")
+    ch_user  = db.get_config("sub_channel_username", "").strip()
+    ch_title = db.get_config("sub_channel_title", "غير محدد").strip()
+    bk_id    = db.get_emoji("BTN_BACK")[1]
+
+    return markup(
+        [btn(
+            "🔔 الاشتراك الإجباري: مفعل" if sub_on else "🔔 الاشتراك الإجباري: معطل",
+            "toggle_forced_subscription",
+            style="success" if sub_on else "danger"
+        )],
+        [btn("🔗 تغيير يوزرنيم القناة",  "set_sub_channel_username", style="primary")],
+        [btn("✏️ تغيير اسم القناة",        "set_sub_channel_title",    style="primary")],
+        [btn("رجوع", "admin_panel", style="danger", icon=bk_id)],
+    )
+
+
+@admin_only
+async def cb_admin_forced_sub(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    sub_on   = db.get_flag("forced_subscription")
+    ch_user  = db.get_config("sub_channel_username", "").strip() or "غير محدد"
+    ch_title = db.get_config("sub_channel_title", "غير محدد").strip()
+
+    text = (
+        "🔔 إعدادات الاشتراك الإجباري\n\n"
+        f"الحالة: {'✅ مفعل' if sub_on else '❌ معطل'}\n"
+        f"اسم القناة: {ch_title}\n"
+        f"يوزرنيم: @{ch_user}\n\n"
+        "تأكد من إضافة البوت كـ Admin في القناة\n"
+        "حتى يتمكن من التحقق من الاشتراك."
+    )
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=text,
+        reply_markup=_forced_sub_kb()
+    )
+
+
+@admin_only
+async def cb_toggle_forced_sub(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    current = db.get_flag("forced_subscription")
+    db.set_flag("forced_subscription", not current)
+    await cb_admin_forced_sub(update, ctx)
+
+
+@admin_only
+async def cb_set_sub_channel_id(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_sub_channel_id"] = True
+    current = db.get_config("sub_channel_id", "غير محدد")
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=(
+            f"📢 Channel ID الحالي: `{current}`\n\n"
+            "أرسل الـ Channel ID الجديد:\n"
+            "مثال: `-1001234567890`\n\n"
+            "للحصول على الـ ID: أضف @userinfobot للقناة أو ابحث عنه."
+        ),
+        parse_mode="Markdown",
+        reply_markup=markup([btn("❌ إلغاء", "admin_forced_sub", style="danger")])
+    )
+
+
+@admin_only
+async def cb_set_sub_channel_username(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_sub_channel_username"] = True
+    current = db.get_config("sub_channel_username", "غير محدد")
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=(
+            f"🔗 اليوزرنيم الحالي: @{current}\n\n"
+            "أرسل يوزرنيم القناة الجديد (بدون @):\n"
+            "مثال: mychannel"
+        ),
+        reply_markup=markup([btn("❌ إلغاء", "admin_forced_sub", style="danger")])
+    )
+
+
+@admin_only
+async def cb_set_sub_channel_title(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_sub_channel_title"] = True
+    current = db.get_config("sub_channel_title", "قناتنا")
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=(
+            f"✏️ اسم القناة الحالي: {current}\n\n"
+            "أرسل الاسم الجديد الذي سيظهر للمستخدمين:"
+        ),
+        reply_markup=markup([btn("❌ إلغاء", "admin_forced_sub", style="danger")])
+    )
+
+
+async def handle_sub_channel_id(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not ctx.user_data.get("awaiting_sub_channel_id"):
+        return
+    ctx.user_data["awaiting_sub_channel_id"] = False
+    value = update.message.text.strip()
+    if not (value.lstrip("-").isdigit()):
+        await update.message.reply_text(
+            "❌ Channel ID غير صحيح. يجب أن يكون رقماً مثل: `-1001234567890`",
+            parse_mode="Markdown"
+        )
+        ctx.user_data["awaiting_sub_channel_id"] = True
+        return
+    db.set_config("sub_channel_id", value)
+    await update.message.reply_text(
+        f"✅ تم تحديث Channel ID إلى: `{value}`",
+        parse_mode="Markdown",
+        reply_markup=markup([btn("رجوع لإعدادات الاشتراك", "admin_forced_sub", style="primary")])
+    )
+
+
+async def handle_sub_channel_username(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not ctx.user_data.get("awaiting_sub_channel_username"):
+        return
+    ctx.user_data["awaiting_sub_channel_username"] = False
+    value = update.message.text.strip().lstrip("@")
+    db.set_config("sub_channel_username", value)
+    await update.message.reply_text(
+        f"✅ تم تحديث يوزرنيم القناة إلى: @{value}",
+        reply_markup=markup([btn("رجوع لإعدادات الاشتراك", "admin_forced_sub", style="primary")])
+    )
+
+
+async def handle_sub_channel_title(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not ctx.user_data.get("awaiting_sub_channel_title"):
+        return
+    ctx.user_data["awaiting_sub_channel_title"] = False
+    value = update.message.text.strip()
+    db.set_config("sub_channel_title", value)
+    await update.message.reply_text(
+        f"✅ تم تحديث اسم القناة إلى: {value}",
+        reply_markup=markup([btn("رجوع لإعدادات الاشتراك", "admin_forced_sub", style="primary")])
+    )
+
+
 async def handle_admin_text_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     """Handler موحد لكل مدخلات النص من الأدمن — يمنع التعارض بين الـ handlers."""
     if not db.is_admin(update.effective_user.id):
@@ -705,11 +857,29 @@ async def handle_admin_text_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE
         await handle_emoji_input(update, ctx)
         return
 
+    if ctx.user_data.get("awaiting_sub_channel_id"):
+        await handle_sub_channel_id(update, ctx)
+        return
+
+    if ctx.user_data.get("awaiting_sub_channel_username"):
+        await handle_sub_channel_username(update, ctx)
+        return
+
+    if ctx.user_data.get("awaiting_sub_channel_title"):
+        await handle_sub_channel_title(update, ctx)
+        return
+
 
 # ─── Register ───────────────────────────────────────────────
 
 def register(app):
     app.add_handler(CallbackQueryHandler(cb_admin_panel,         pattern="^admin_panel$"))
+    # ─── Forced Subscription (قبل toggle_\w+ عشان ما يتعارضش) ──
+    app.add_handler(CallbackQueryHandler(cb_admin_forced_sub,         pattern="^admin_forced_sub$"))
+    app.add_handler(CallbackQueryHandler(cb_toggle_forced_sub,        pattern="^toggle_forced_subscription$"))
+    app.add_handler(CallbackQueryHandler(cb_set_sub_channel_username, pattern="^set_sub_channel_username$"))
+    app.add_handler(CallbackQueryHandler(cb_set_sub_channel_title,    pattern="^set_sub_channel_title$"))
+    # ─── Feature Toggles ────────────────────────────────────
     app.add_handler(CallbackQueryHandler(cb_toggle,              pattern=r"^toggle_\w+$"))
     app.add_handler(CallbackQueryHandler(cb_admin_approvals,     pattern="^admin_approvals$"))
     app.add_handler(CallbackQueryHandler(cb_approve,             pattern=r"^approve_\d+$"))
@@ -727,6 +897,7 @@ def register(app):
     app.add_handler(CallbackQueryHandler(cb_admin_emojis,        pattern="^admin_emojis$"))
     app.add_handler(CallbackQueryHandler(cb_emoji_category,      pattern=r"^emoji_cat_.+$"))
     app.add_handler(CallbackQueryHandler(cb_edit_emoji,          pattern=r"^edit_emoji_\w+$"))
+    # ─── Commands ───────────────────────────────────────────
     app.add_handler(CommandHandler("ban",               cmd_ban))
     app.add_handler(CommandHandler("unban",             cmd_unban))
     app.add_handler(CommandHandler("addadmin",          cmd_addadmin))
