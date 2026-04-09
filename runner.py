@@ -427,8 +427,11 @@ def install_dependencies(script_id: int, notify_cb=None) -> tuple[bool, str]:
 # ─── Internal ───────────────────────────────────────────────
 
 def _build_command(script: db.Script) -> Optional[list]:
+    # التعديل هنا: نستخدم sys.executable لضمان العثور على بايثون في أي سيرفر
+    python_exe = sys.executable if sys.executable else "python3"
+    
     if script.file_type == "py":
-        return [sys.executable, "-u", script.file_path]
+        return [python_exe, "-u", script.file_path]
     if script.file_type == "js":
         return ["node", script.file_path]
     return None
@@ -564,6 +567,9 @@ def _monitor(script_id: int):
 
 def _check_and_install_python_packages(script_path: str) -> tuple[bool, str]:
     """تثبيت تلقائي لكل المكتبات الناقصة."""
+    # التعديل هنا لضمان استخدام نسخة بايثون السيرفر الحقيقية
+    python_exe = sys.executable if sys.executable else "python3"
+    
     try:
         missing = _get_missing_packages(script_path)
         if not missing:
@@ -571,7 +577,7 @@ def _check_and_install_python_packages(script_path: str) -> tuple[bool, str]:
 
         for pkg in missing:
             res = subprocess.run(
-                [sys.executable, "-m", "pip", "install", pkg, "--quiet", "--no-warn-script-location"],
+                [python_exe, "-m", "pip", "install", pkg, "--quiet", "--no-warn-script-location"],
                 capture_output=True, text=True, timeout=120
             )
             if res.returncode != 0:
