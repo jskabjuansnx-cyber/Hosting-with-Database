@@ -91,11 +91,7 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # ─── فحص الاشتراك الإجباري ───────────────────────────
-    if not await check_and_guard(update, ctx):
-        return
-
-    # إشعار المالك بمستخدم جديد
+    # إشعار المالك بمستخدم جديد (قبل فحص الاشتراك عشان يوصل دايماً)
     if is_new and user_id != OWNER_ID:
         try:
             nu_char, nu_id = db.get_emoji("NEW_USER")
@@ -112,6 +108,10 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             )
         except Exception:
             pass
+
+    # ─── فحص الاشتراك الإجباري ───────────────────────────
+    if not await check_and_guard(update, ctx):
+        return
 
     # ─── بيانات الدور ────────────────────────────────────
     file_limit = _get_file_limit(user_id)
