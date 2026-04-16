@@ -24,6 +24,18 @@ _kwargs = {}
 if DATABASE_URL.startswith("sqlite"):
     _connect_args = {"check_same_thread": False}
     _kwargs = {"poolclass": StaticPool}
+elif DATABASE_URL.startswith("postgres"):
+    # Supabase / Neon / Railway PostgreSQL
+    # Fix URL format if needed (postgres:// → postgresql://)
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    _kwargs = {
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_timeout": 30,
+        "pool_recycle": 1800,
+        "pool_pre_ping": True,
+    }
 
 engine = create_engine(
     DATABASE_URL,
@@ -280,27 +292,28 @@ def init_db(owner_id: int):
 
 def _run_migrations():
     """Add missing columns to existing databases without losing data."""
+    if DATABASE_URL.startswith("sqlite"):
+        _run_sqlite_migrations()
+    elif "postgresql" in DATABASE_URL:
+        _run_postgres_migrations()
+
+
+def _run_sqlite_migrations():
     import sqlite3 as _sqlite3
-    if not DATABASE_URL.startswith("sqlite"):
-        return
-    
     db_path = DATABASE_URL.replace("sqlite:///", "")
     if not os.path.exists(db_path):
         return
-    
     migrations = [
         ("users", "has_uploaded_free",  "BOOLEAN DEFAULT 0"),
         ("users", "ban_reason",         "TEXT"),
         ("users", "subscription_expiry","DATETIME"),
         ("users", "free_uploads_used",  "INTEGER DEFAULT 0"),
     ]
-    
     try:
         conn = _sqlite3.connect(db_path)
         c = conn.cursor()
         c.execute("PRAGMA table_info(users)")
         existing_cols = {row[1] for row in c.fetchall()}
-        
         for table, col, col_type in migrations:
             if col not in existing_cols:
                 try:
@@ -308,11 +321,34 @@ def _run_migrations():
                     logger.info(f"Migration: added column {col} to {table}")
                 except Exception as e:
                     logger.warning(f"Migration skip {col}: {e}")
-        
         conn.commit()
         conn.close()
     except Exception as e:
         logger.error(f"Migration error: {e}")
+
+
+def _run_postgres_migrations():
+    """Run migrations for PostgreSQL."""
+    migrations = [
+        ("users", "has_uploaded_free",  "BOOLEAN DEFAULT FALSE"),
+        ("users", "ban_reason",         "TEXT"),
+        ("users", "subscription_expiry","TIMESTAMP"),
+        ("users", "free_uploads_used",  "INTEGER DEFAULT 0"),
+    ]
+    try:
+        with engine.connect() as conn:
+            from sqlalchemy import text
+            for table, col, col_type in migrations:
+                try:
+                    conn.execute(text(
+                        f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {col_type}"
+                    ))
+                    conn.commit()
+                    logger.info(f"PG Migration: ensured column {col} in {table}")
+                except Exception as e:
+                    logger.warning(f"PG Migration skip {col}: {e}")
+    except Exception as e:
+        logger.error(f"PG Migration error: {e}")
 
 
 # ─── Helpers ────────────────────────────────────────────────

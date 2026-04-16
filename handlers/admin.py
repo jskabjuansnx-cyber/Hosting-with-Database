@@ -452,7 +452,37 @@ async def cb_admin_users(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         "`/removeadmin <user_id>`\n"
         "`/subscribe <user_id> <أيام>`",
         parse_mode="Markdown",
-        reply_markup=markup([btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])])
+        reply_markup=markup(
+            [btn("🚫 حظر مستخدم",     "admin_ban_user",   style="danger"),
+             btn("✅ فك حظر مستخدم",  "admin_unban_user", style="success")],
+            [btn("رجوع", "admin_panel", style="danger", icon=db.get_emoji("BTN_BACK")[1])]
+        )
+    )
+
+
+@admin_only
+async def cb_admin_ban_user(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_ban_id"] = True
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text="🚫 أرسل ID المستخدم الذي تريد حظره:\n_(مثال: 123456789)_",
+        parse_mode="Markdown",
+        reply_markup=markup([btn("❌ إلغاء", "admin_users", style="danger")])
+    )
+
+
+@admin_only
+async def cb_admin_unban_user(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    ctx.user_data["awaiting_unban_id"] = True
+    await ctx.bot.send_message(
+        chat_id=query.message.chat_id,
+        text="✅ أرسل ID المستخدم الذي تريد فك حظره:\n_(مثال: 123456789)_",
+        parse_mode="Markdown",
+        reply_markup=markup([btn("❌ إلغاء", "admin_users", style="danger")])
     )
 
 
@@ -869,6 +899,52 @@ async def handle_admin_text_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE
         await handle_sub_channel_title(update, ctx)
         return
 
+    if ctx.user_data.get("awaiting_ban_id"):
+        ctx.user_data["awaiting_ban_id"] = False
+        try:
+            target = int(update.message.text.strip())
+        except ValueError:
+            await update.message.reply_text("❌ يجب إرسال رقم ID صحيح.")
+            ctx.user_data["awaiting_ban_id"] = True
+            return
+        with db.get_session() as s:
+            user = s.get(db.User, target)
+            if not user:
+                user = db.User(id=target)
+                s.add(user)
+            user.is_banned  = True
+            user.ban_reason = "محظور من لوحة الأدمن"
+        await update.message.reply_text(
+            f"🚫 تم حظر المستخدم `{target}` بنجاح.",
+            parse_mode="Markdown",
+            reply_markup=markup([btn("رجوع لإدارة المستخدمين", "admin_users", style="primary")])
+        )
+        return
+
+    if ctx.user_data.get("awaiting_unban_id"):
+        ctx.user_data["awaiting_unban_id"] = False
+        try:
+            target = int(update.message.text.strip())
+        except ValueError:
+            await update.message.reply_text("❌ يجب إرسال رقم ID صحيح.")
+            ctx.user_data["awaiting_unban_id"] = True
+            return
+        with db.get_session() as s:
+            user = s.get(db.User, target)
+            if not user:
+                await update.message.reply_text(
+                    f"❌ المستخدم `{target}` غير موجود في قاعدة البيانات.",
+                    parse_mode="Markdown"
+                )
+                return
+            user.is_banned = False
+        await update.message.reply_text(
+            f"✅ تم فك حظر المستخدم `{target}` بنجاح.",
+            parse_mode="Markdown",
+            reply_markup=markup([btn("رجوع لإدارة المستخدمين", "admin_users", style="primary")])
+        )
+        return
+
 
 # ─── Register ───────────────────────────────────────────────
 
@@ -888,6 +964,8 @@ def register(app):
     app.add_handler(CallbackQueryHandler(cb_stop_all,            pattern="^admin_stop_all$"))
     app.add_handler(CallbackQueryHandler(cb_admin_settings,      pattern="^admin_settings$"))
     app.add_handler(CallbackQueryHandler(cb_admin_users,         pattern="^admin_users$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_ban_user,      pattern="^admin_ban_user$"))
+    app.add_handler(CallbackQueryHandler(cb_admin_unban_user,    pattern="^admin_unban_user$"))
     app.add_handler(CallbackQueryHandler(cb_admin_broadcast,     pattern="^admin_broadcast$"))
     app.add_handler(CallbackQueryHandler(cb_admin_subscriptions, pattern="^admin_subscriptions$"))
     app.add_handler(CallbackQueryHandler(cb_admin_lock_bot,      pattern="^admin_lock_bot$"))

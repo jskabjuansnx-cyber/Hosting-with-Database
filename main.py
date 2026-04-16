@@ -70,8 +70,8 @@ def main():
     user.register(app)
 
     # Schedule background cleanup system (Disk and RAM saver for Free Tiers)
-    # Runs every 5 hours (18000 seconds), starts 1 hour (3600 seconds) after boot.
-    app.job_queue.run_repeating(run_system_cleanup, interval=18000, first=3600)
+    # Runs every 2 hours (7200 seconds), starts 30 minutes (1800 seconds) after boot.
+    app.job_queue.run_repeating(run_system_cleanup, interval=7200, first=1800)
 
     # Check for expiring subscriptions daily (every 24 hours, first check after 1 minute)
     app.job_queue.run_repeating(check_expiring_subscriptions, interval=86400, first=60)
