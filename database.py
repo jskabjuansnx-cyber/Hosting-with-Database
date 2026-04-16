@@ -29,6 +29,8 @@ elif DATABASE_URL.startswith("postgres"):
     # Fix URL format if needed (postgres:// → postgresql://)
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    elif DATABASE_URL.startswith("postgres:") and not DATABASE_URL.startswith("postgresql"):
+        DATABASE_URL = DATABASE_URL.replace("postgres:", "postgresql://", 1)
     _kwargs = {
         "pool_size": 5,
         "max_overflow": 10,
